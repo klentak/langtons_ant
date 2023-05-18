@@ -5,7 +5,7 @@ use std::time::Duration;
 fn main() {
   pub const SIZE_X: usize = 512;
   pub const SIZE_Y: usize = 100;
-  pub const DEFAULT_SIGN: char = '0';
+  pub const DEFAULT_SIGN: &'static str = "0";
 
   #[derive(Clone)]
   pub enum Direction {
@@ -20,11 +20,11 @@ fn main() {
     pub x: usize,
     pub y: usize,
     pub direction: Direction,
-    pub sign: String
+    pub sign: &'static str
   }
 
   impl Ant {
-    fn new(x: usize, y: usize, direction: Direction, sign: String) -> Ant {
+    fn new(x: usize, y: usize, direction: Direction, sign: &'static str) -> Ant {
       Ant { x, y, direction, sign }
     }
 
@@ -57,7 +57,7 @@ fn main() {
   }
 
   pub struct Board {
-    pub array: [[char; SIZE_X]; SIZE_Y],
+    pub array: [[&'static str; SIZE_X]; SIZE_Y],
   }
 
   pub struct Simulation {
@@ -92,7 +92,7 @@ fn main() {
 
       if self.board.array[ant.y][ant.x] == DEFAULT_SIGN {
         new_ant.turn_right();
-        self.board.array[new_ant.y][new_ant.x] = new_ant.sign.chars().next().unwrap_or(DEFAULT_SIGN);
+        self.board.array[new_ant.y][new_ant.x] = new_ant.sign;
         new_ant.walk();
       } else {
         new_ant.turn_left();
@@ -111,7 +111,7 @@ fn main() {
         println!("");
       }
 
-      thread::sleep(Duration::new(0, 200_000_000));
+      thread::sleep(Duration::new(0, 100_000_00));
       let _ = Command::new("clear").status();
     }
   }
@@ -121,7 +121,7 @@ fn main() {
       50,
       50,
       Direction::Up,
-      String::from("\u{001b}[31mO\u{001b}[0m"),
+      "\u{001b}[31mO\u{001b}[0m",
     )],
     Board {
       array: [[DEFAULT_SIGN; SIZE_X]; SIZE_Y],
@@ -129,5 +129,5 @@ fn main() {
   );
 
   
-  simulation.run(50);
+  simulation.run(1000);
 }
