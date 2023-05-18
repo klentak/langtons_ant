@@ -48,10 +48,10 @@ fn main() {
 
     fn walk(&mut self) {
       match self.direction {
-        Direction::Up =>  { self.y -= 1 },
-        Direction::Left => { self.x -= 1 },
-        Direction::Down => { self.y += 1 },
-        Direction::Right => { self.x += 1 },
+        Direction::Up =>  { self.y = (self.y + SIZE_Y - 1) % SIZE_Y; },
+        Direction::Left => { self.x = (self.x + SIZE_X - 1) % SIZE_X; },
+        Direction::Down => { self.y = (self.y + 1) % SIZE_Y; },
+        Direction::Right => { self.x = (self.x + 1) % SIZE_X; },
       };
     }
   }
@@ -111,7 +111,7 @@ fn main() {
         println!("");
       }
 
-      thread::sleep(Duration::new(0, 100_000_00));
+//      thread::sleep(Duration::new(0, 900_00));
       let _ = Command::new("clear").status();
     }
   }
@@ -129,5 +129,5 @@ fn main() {
   );
 
   
-  simulation.run(1000);
+  simulation.run(120000);
 }
