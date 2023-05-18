@@ -1,108 +1,133 @@
+use std::process::Command;
+use std::thread;
+use std::time::Duration;
+
 fn main() {
   pub const SIZE_X: usize = 512;
   pub const SIZE_Y: usize = 100;
-  pub const DEFAULT_SIGN: &str = "0";
-  
+  pub const DEFAULT_SIGN: char = '0';
+
+  #[derive(Clone)]
   pub enum Direction {
     Up,
-    Right ,
+    Right,
     Down,
     Left
   }
 
+  #[derive(Clone)]
   pub struct Ant {
-    pub x: i32,
-    pub y: i32,
+    pub x: usize,
+    pub y: usize,
     pub direction: Direction,
     pub sign: String
   }
-  
+
   impl Ant {
+    fn new(x: usize, y: usize, direction: Direction, sign: String) -> Ant {
+      Ant { x, y, direction, sign }
+    }
+
     fn turn_right(&mut self) {
       self.direction = match self.direction {
-        Direction::Up =>  Direction::Right,
+        Direction::Up => Direction::Right,
         Direction::Right => Direction::Down,
         Direction::Down => Direction::Left,
         Direction::Left => Direction::Up,
       };
     }
-    
+
     fn turn_left(&mut self) {
       self.direction = match self.direction {
-        Direction::Up =>  Direction::Left,
+        Direction::Up => Direction::Left,
         Direction::Left => Direction::Down,
         Direction::Down => Direction::Right,
         Direction::Right => Direction::Up,
       };
     }
-    
+
     fn walk(&mut self) {
       match self.direction {
-        Direction::Up =>  { self.y += 1 },
+        Direction::Up =>  { self.y -= 1 },
         Direction::Left => { self.x -= 1 },
-        Direction::Down => { self.y -= 1 },
+        Direction::Down => { self.y += 1 },
         Direction::Right => { self.x += 1 },
       };
     }
   }
 
-  pub struct Board<'a> {
-    pub array: [[&'a str; SIZE_X]; SIZE_Y]
+  pub struct Board {
+    pub array: [[char; SIZE_X]; SIZE_Y],
   }
 
-  struct Simulation<'a> {
-    ants: [Ant; 1],
-    board: Board<'a>
+  pub struct Simulation {
+    ants: Vec<Ant>,
+    board: Board,
   }
 
-  impl Simulation<'_> {
-    fn run(& mut self, rounds: usize) {
+  impl Simulation {
+    fn new(ants: Vec<Ant>, board: Board) -> Simulation {
+      Simulation { ants, board }
+    }
+
+    fn run(&mut self, rounds: usize) {
       for _ in 0..rounds {
         self.print();
-        &self.round();
+        self.round();
       }
     }
-    
-    fn round(& mut self) {
-      for mut ant in &self.ants {
-        &self.make_move(&mut ant);
+
+    fn round(&mut self) {
+      let ants_copy = self.ants.clone();
+      self.ants.clear();
+
+      for ant in ants_copy {
+        let moved_ant = self.make_move(&ant);
+        self.ants.push(moved_ant);
       }
     }
-    
-    fn make_move(&mut self, ant: &mut Ant) {
-      if self.board.array[ant.y as usize][ant.x as usize] == DEFAULT_SIGN {
-        &ant.turn_right();
-        &ant.walk();
-        self.board.array[ant.y as usize][ant.x as usize] = ant.sign.as_str();
+
+    fn make_move(&mut self, ant: &Ant) -> Ant {
+      let mut new_ant = ant.clone();
+
+      if self.board.array[ant.y][ant.x] == DEFAULT_SIGN {
+        new_ant.turn_right();
+        self.board.array[new_ant.y][new_ant.x] = new_ant.sign.chars().next().unwrap_or(DEFAULT_SIGN);
+        new_ant.walk();
       } else {
-        &ant.turn_left();
-        &ant.walk();
-        self.board.array[ant.y as usize][ant.x as usize] = DEFAULT_SIGN;
+        new_ant.turn_left();
+        self.board.array[new_ant.y][new_ant.x] = DEFAULT_SIGN;
+        new_ant.walk();
       }
+
+      new_ant
     }
-    
+
     fn print(&self) {
-      println!("{}", &self.board.array.len());
       for row in &self.board.array {
         for pixel in row {
-          print!("{}", pixel)
+          print!("{}", pixel);
         }
         println!("");
       }
+
+      thread::sleep(Duration::new(0, 200_000_000));
+      let _ = Command::new("clear").status();
     }
   }
-  
-  let mut simulation = Simulation {
-    ants: [Ant {
-      x: 0,
-      y: 0,
-      direction: Direction::Up,
-      sign: String::from("\u{001b}[31mO\u{001b}[0m")
-    }],
-    board: Board {
+
+  let mut simulation = Simulation::new(
+    vec![Ant::new(
+      50,
+      50,
+      Direction::Up,
+      String::from("\u{001b}[31mO\u{001b}[0m"),
+    )],
+    Board {
       array: [[DEFAULT_SIGN; SIZE_X]; SIZE_Y],
     },
-  };
+  );
+
   
-  simulation.run(1);
+  simulation.run(50);
 }
