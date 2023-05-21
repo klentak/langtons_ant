@@ -3,7 +3,7 @@ use std::thread;
 use std::time::Duration;
 
 fn main() {
-  pub const SIZE_X: usize = 512;
+  pub const SIZE_X: usize = 300;
   pub const SIZE_Y: usize = 100;
   pub const DEFAULT_SIGN: &'static str = "0";
 
@@ -63,11 +63,12 @@ fn main() {
   pub struct Simulation {
     ants: Vec<Ant>,
     board: Board,
+    itteration: i64,
   }
 
   impl Simulation {
-    fn new(ants: Vec<Ant>, board: Board) -> Simulation {
-      Simulation { ants, board }
+    fn new(ants: Vec<Ant>, board: Board, itteration: i64) -> Simulation {
+      Simulation { ants, board, itteration }
     }
 
     fn run(&mut self, rounds: usize) {
@@ -103,31 +104,43 @@ fn main() {
       new_ant
     }
 
-    fn print(&self) {
-      for row in &self.board.array {
-        for pixel in row {
-          print!("{}", pixel);
+    fn print(&mut self) {
+      if self.itteration % 100 == 0 {
+        for row in &self.board.array {
+          for pixel in row {
+            print!("{}", pixel);
+          }
+          println!("");
         }
-        println!("");
-      }
 
-//      thread::sleep(Duration::new(0, 900_00));
-      let _ = Command::new("clear").status();
+        // adjust for terminal
+        thread::sleep(Duration::new(0, 90000000));
+        let _ = Command::new("clear").status();
+      }
+      self.itteration = self.itteration + 1;
     }
   }
 
   let mut simulation = Simulation::new(
-    vec![Ant::new(
-      50,
-      50,
-      Direction::Up,
-      "\u{001b}[31mO\u{001b}[0m",
-    )],
+    vec![
+      Ant::new(
+        50,
+        50,
+        Direction::Up,
+        "\u{001b}[31mO\u{001b}[0m",
+      ),
+      Ant::new(
+        100,
+        50,
+        Direction::Up,
+        "\u{001b}[37mO\u{001b}[0m",
+      )
+    ],
     Board {
       array: [[DEFAULT_SIGN; SIZE_X]; SIZE_Y],
     },
+    1
   );
-
   
   simulation.run(120000);
 }
