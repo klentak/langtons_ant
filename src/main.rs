@@ -3,8 +3,8 @@ use std::thread;
 use std::time::Duration;
 
 fn main() {
-  pub const SIZE_X: usize = 300;
-  pub const SIZE_Y: usize = 100;
+  pub const SIZE_Y: usize = 300;
+  pub const SIZE_X: usize = 100;
   pub const DEFAULT_SIGN: &'static str = "0";
 
   #[derive(Clone)]
@@ -48,16 +48,16 @@ fn main() {
 
     fn walk(&mut self) {
       match self.direction {
-        Direction::Up =>  { self.y = (self.y + SIZE_Y - 1) % SIZE_Y; },
-        Direction::Left => { self.x = (self.x + SIZE_X - 1) % SIZE_X; },
-        Direction::Down => { self.y = (self.y + 1) % SIZE_Y; },
-        Direction::Right => { self.x = (self.x + 1) % SIZE_X; },
+        Direction::Up =>  { self.y = (self.y + SIZE_X - 1) % SIZE_X; },
+        Direction::Left => { self.x = (self.x + SIZE_Y - 1) % SIZE_Y; },
+        Direction::Down => { self.y = (self.y + 1) % SIZE_X; },
+        Direction::Right => { self.x = (self.x + 1) % SIZE_Y; },
       };
     }
   }
 
   pub struct Board {
-    pub array: [[&'static str; SIZE_X]; SIZE_Y],
+    pub array: [[&'static str; SIZE_Y]; SIZE_X],
   }
 
   pub struct Simulation {
@@ -137,7 +137,7 @@ fn main() {
       )
     ],
     Board {
-      array: [[DEFAULT_SIGN; SIZE_X]; SIZE_Y],
+      array: [[DEFAULT_SIGN; SIZE_Y]; SIZE_X],
     },
     1
   );
